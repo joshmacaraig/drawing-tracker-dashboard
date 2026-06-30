@@ -1,0 +1,46 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Drawing {
+  id             Int              @id @default(autoincrement())
+  drawing_id     String           @unique
+  title          String?
+  group          String?
+  revision       String?
+  status         String?
+  upload_date    DateTime?
+  drop_dead_date DateTime?
+  risk           String?
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @updatedAt
+  history        DrawingHistory[]
+}
+
+model DrawingHistory {
+  id          Int      @id @default(autoincrement())
+  drawing_id  String
+  field       String
+  old_value   String?
+  new_value   String?
+  source      String   @default("manual")
+  import_file String?
+  changed_at  DateTime @default(now())
+  drawing     Drawing  @relation(fields: [drawing_id], references: [drawing_id])
+}
+
+model ImportHistory {
+  id          Int      @id @default(autoincrement())
+  file_name   String
+  imported_at DateTime @default(now())
+  inserted    Int      @default(0)
+  updated     Int      @default(0)
+  unchanged   Int      @default(0)
+  errors      Int      @default(0)
+  error_log   String?
+}
